@@ -141,7 +141,7 @@ while (step < 6):
                                         smtpObj.sendmail(sender, dest_addr, (message_c.format("Freezer")))
                                         c.execute("INSERT INTO alerts(id, fid, type, dest, err) VALUES ( NULL,?,?,?,?)",(rid,type_e, dest_addr,(message_c.format("Freezer"))) )
                                         print "e-mail Inviata a {}".format(dest_addr)
-                                except (smtplib.SMTPException , socket.error ):
+                                except smtplib.SMTPException:
                                         print "e-mail NON Inviata a {}".format(dest_addr)
                                         c.execute("INSERT INTO alerts(id, fid, type, dest, err) VALUES ( NULL,?,?,?,?)",(rid,type_e, dest_addr,smtplib.SMTPException) )
                         ctrl = 1
@@ -165,7 +165,7 @@ while (step < 6):
                                         c.execute("INSERT INTO alerts(id, fid, type, dest, err) VALUES ( NULL,?,?,?,?)",(rid,type_e,dest_addr,(message_c.format("Frigor"))) )
                                         print "e-mail Inviata a {}".format(dest_addr)
                                 except smtplib.SMTPException:
-                                        c.execute("INSERT INTO alerts(id, fid, type, dest, err) VALUES ( NULL,?,?,?,?)",(rid,type_e,dest_addr,smtplib.SMTException) )
+                                        c.execute("INSERT INTO alerts(id, fid, type, dest, err) VALUES ( NULL,?,?,?,?)",(rid,type_e,dest_addr,smtplib.SMTPException) )
                                         print "e-mail NON Inviata a {}".format(dest_addr)
                         ctrl = 1
                         for dest_sms in list_sms:
@@ -188,7 +188,7 @@ while (step < 6):
                                         c.execute("INSERT INTO alerts(id, fid, type, dest, err) VALUES ( NULL,?,?,?,?)",(rid,type_e,dest_addr,(message_t.format(cella='Freezer', temp=temp_c_z))))
                                         print "e-mail Inviata a {}".format(dest_addr)
                                 except smtplib.SMTPException:
-                                        c.execute("INSERT INTO alerts(id, fid, type, dest, err) VALUES ( NULL,?,?,?,?)",(rid,type_e,dest_addr,smtplib.SMTException))
+                                        c.execute("INSERT INTO alerts(id, fid, type, dest, err) VALUES ( NULL,?,?,?,?)",(rid,type_e,dest_addr,smtplib.SMTPException))
                                         print "e-mail NON Inviata a {}".format(dest_addr)
                         ctrl = 1
                         for dest_sms in list_sms:
@@ -215,7 +215,7 @@ while (step < 6):
                                         print "e-mail NON Inviata a {}".format(dest_addr)
                         ctrl = 1
                         for dest_sms in list_sms:
-								try:
+				try:
                                         sms_alarm_temp(num = dest_sms)
                                         c.execute("INSERT INTO alerts(id, fid, type, dest, err) VALUES ( NULL,?,?,?,?)",(rid,type_s, dest_sms,(sms_temp.format(temp_c_z))))
                                         print "SMS Inviato a {}".format(dest_sms)
