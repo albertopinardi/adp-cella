@@ -75,27 +75,30 @@ def read_temp(pth):
         #return temp_c, temp_f
         return temp_c
 
-def sms_alarm_temp( num ):
+def sms_alarm_temp( num, cella, temp):
         sm = gammu.StateMachine()
         sm.ReadConfig()
         sm.Init()
         message = {
-                'Text': 'Attenzione!!! Allarme Temperatura Cella Freezer o Frigor',
+                'Text': 'Attenzione!!! Allarme Cella {cella}. Temperatura attuale : {temp}',
                 'SMSC': {'Location': 1},
                 'Number': num,
         }
         sm.SendSMS(message)
 
-def sms_alarm_tens( num ):
+def sms_alarm_tens( num, cella ):
         sm = gammu.StateMachine()
         sm.ReadConfig()
         sm.Init()
         message = {
-               'Text': 'Attenzione!!! Allarme Tensione Cella Freezer o Frigor',
+               'Text': 'Attenzione!!! Allarme Mancanza Tensione Cella {cella}',
                'SMSC': {'Location': 1},
                'Number': num,
         }
         sm.SendSMS(message)
+
+def stampa_stdout():
+        print("T° Freezer: ", temp_c_z,"T° Frigor: ", temp_c_g , "Ore: ", time.ctime(int(time_now)), "Corrente Freezer: ",sfreezer, "Corrente Frigor: ",sfrigor)
 
 
 #Allarmi SMS per DB
@@ -103,13 +106,11 @@ sms_tens = "Attenzione!!! Allarme Tensione Cella Freezer/Frigor"
 sms_temp = "Attenzione!!! Allarme Cella Freezer/Frigor {}"
 
 #Definizione Variabili
-temp_sup_z = -1         #Intervallo di Allarme superiore Cella Freezer
+temp_sup_z = -5         #Intervallo di Allarme superiore Cella Freezer
 temp_inf_z = -24
 temp_sup_g = 100                #Intervallo di Allarme superiore Cella Frigor
 temp_inf_g = 0
-list_sms = ['+393406694374']
-#claudio,'+393394483981']
-#maura,'+393339436443']
+list_sms = ['+393406694374','+393394483981']
 sender = 'allarme-adp@fastmail.it'
 receivers = ['alberto@fastmail.it']
 step = 1
@@ -124,7 +125,7 @@ while (step < 6):
         temp_c_g = read_temp(path_frigor)
         sfreezer = GPIO.input(24)
         sfrigor = GPIO.input(23)
-        print("T° Freezer: ", temp_c_z,"T° Frigor: ", temp_c_g , "Ore: ", time.ctime(int(time_now)), "Corrente Freezer: ",sfreezer, "Corrente Frigor: ",sfrigor)
+        stampa_stdout
         print("Rilevazione n' : ", step )
         step += 1
         if ((temp_c_z >= temp_inf_z) & (temp_c_z <= temp_sup_z) & sfreezer & sfrigor & (temp_c_g >= temp_inf_g) & (temp_c_g <= temp_sup_g)):
@@ -147,7 +148,7 @@ while (step < 6):
                         ctrl = 1
                         for dest_sms in list_sms:
                                 try:
-                                        sms_alarm_tens(dest_sms)
+                                        sms_alarm_tens(dest_sms,'Freezer')
                                         c.execute("INSERT INTO alerts(id, fid, type, dest, err) VALUES ( NULL,?,?,?,?)",(rid,type_s, dest_sms,sms_tens) )
                                         print "SMS Inviato a {}".format(dest_sms)
                                 except gammu.GSMError:
@@ -170,7 +171,7 @@ while (step < 6):
                         ctrl = 1
                         for dest_sms in list_sms:
                                 try:
-                                        sms_alarm_tens(dest_sms)
+                                        sms_alarm_tens(dest_sms,'Frigor')
                                         c.execute("INSERT INTO alerts(id, fid, type, dest, err) VALUES ( NULL,?,?,?,?)",(rid,type_s, dest_sms,sms_tens) )
                                         print "SMS Inviato a {}".format(dest_sms)
                                 except gammu.GSMError:
@@ -193,7 +194,7 @@ while (step < 6):
                         ctrl = 1
                         for dest_sms in list_sms:
                                 try:
-                                        sms_alarm_temp(num = dest_sms)
+                                        sms_alarm_temp(dest_sms,'Freezer',temp_c_z)
                                         c.execute("INSERT INTO alerts(id, fid, type, dest, err) VALUES ( NULL,?,?,?,?)",(rid,type_s, dest_sms,(sms_temp.format(temp_c_z))))
                                         print "SMS Inviato a {}".format(dest_sms)
                                 except gammu.GSMError:
@@ -216,7 +217,7 @@ while (step < 6):
                         ctrl = 1
                         for dest_sms in list_sms:
 				try:
-                                        sms_alarm_temp(num = dest_sms)
+                                        sms_alarm_temp(dest_sms,'Freezer',temp_c_z)
                                         c.execute("INSERT INTO alerts(id, fid, type, dest, err) VALUES ( NULL,?,?,?,?)",(rid,type_s, dest_sms,(sms_temp.format(temp_c_z))))
                                         print "SMS Inviato a {}".format(dest_sms)
                                 except gammu.GSMError:
@@ -239,7 +240,7 @@ while (step < 6):
                         ctrl = 1
                         for dest_sms in list_sms:
                                 try:
-                                        sms_alarm_temp(dest_sms)
+                                        sms_alarm_temp(dest_sms,'Frigor', temp_c_g)
                                         c.execute("INSERT INTO alerts(id, fid, type, dest, err) VALUES ( NULL,?,?,?,?)",(rid,type_s, dest_sms,(sms_temp.format(temp_c_g))))
                                         print "SMS Inviato a {}".format(dest_sms)
                                 except gammu.GSMError:
@@ -262,7 +263,7 @@ while (step < 6):
                         ctrl = 1
                         for dest_sms in list_sms:
                                try:
-                                       sms_alarm_temp(dest_sms)
+                                       sms_alarm_temp(dest_sms,'Frigor', temp_c_g)
                                        c.execute("INSERT INTO alerts(id, fid, type, dest, err) VALUES ( NULL,?,?,?,?)",(rid,type_s, dest_sms,(sms_temp.format(temp_c_g))))
                                        print "SMS Inviato a {}".format(dest_sms)
                                except gammu.GSMError:
