@@ -31,11 +31,6 @@ Temperatura in Cella : {temp}
 </HTML>
 """
 
-#Accensione sensori e pilotaggio
-#In Dubbio ---- Da testare
-#os.system('modprobe w1-gpio')
-#os.system('modprobe w1-therm')
-
 base_dir = '/sys/bus/w1/devices/'
 device_freezer = base_dir + '28-041633ae3bff'
 device_frigor = base_dir + '28-800000040599'
@@ -71,8 +66,6 @@ def read_temp(pth):
     if equals_pos != -1:
         temp_string = lines[1][equals_pos+2:]
         temp_c = float(temp_string) / 1000.0
-        #temp_f = temp_c * 9.0 / 5.0 + 32.0
-        #return temp_c, temp_f
         return temp_c
 
 def sms_alarm_temp( num, cella, temp):
@@ -101,24 +94,27 @@ def stampa_stdout():
         print("T° Freezer: ", temp_c_z,"T° Frigor: ", temp_c_g , "Ore: ", time.ctime(int(time_now)), "Corrente Freezer: ",sfreezer, "Corrente Frigor: ",sfrigor)
 
 
+def push_records_db():
+        c.execute("INSERT INTO records(id, time , temp_freezer , temp_frigor , tens_freezer, tens_frigor) VALUES ( NULL,?,?,?,?,?)",(time_now, temp_c_z, temp_c_g, sfreezer, sfrigor))
+
+
 #Allarmi SMS per DB
 sms_tens = "Attenzione!!! Allarme Tensione Cella Freezer/Frigor"
 sms_temp = "Attenzione!!! Allarme Cella Freezer/Frigor {}"
 
 #Definizione Variabili
 temp_sup_z = -5         #Intervallo di Allarme superiore Cella Freezer
-temp_inf_z = -24
-temp_sup_g = 100                #Intervallo di Allarme superiore Cella Frigor
-temp_inf_g = 0
-list_sms = ['+393406694374','+393394483981']
+temp_inf_z = -24        #Intervallo inferiore Freezer
+temp_sup_g = 100        #Intervallo di Allarme superiore Cella Frigor
+temp_inf_g = 0          #Intervallo inferiore Frigor
+list_sms = ['+393406694374','+393394483981','+393342457975']
 sender = 'allarme-adp@fastmail.it'
 receivers = ['alberto@fastmail.it']
 step = 1
 ctrl = 0
 type_e = "email"
 type_s = "sms"
-#Fine
-#
+#Fine definizione
 while (step < 6):
         time_now = int(time.time())
         temp_c_z = read_temp(path_freezer)
@@ -129,11 +125,10 @@ while (step < 6):
         print("Rilevazione n' : ", step )
         step += 1
         if ((temp_c_z >= temp_inf_z) & (temp_c_z <= temp_sup_z) & sfreezer & sfrigor & (temp_c_g >= temp_inf_g) & (temp_c_g <= temp_sup_g)):
-                #print("Nessun Allarme Rilevato...proseguo")
-                c.execute("INSERT INTO records(id, time , temp_freezer , temp_frigor , tens_freezer, tens_frigor) VALUES ( NULL,?,?,?,?,?)",(time_now, temp_c_z, temp_c_g, sfreezer, sfrigor))
+                push_records_db
         elif not sfreezer:
                 print("---!!!Allarme Tensione Rilevato in Cella Freezer!!!---")
-                c.execute("INSERT INTO records(id, time , temp_freezer , temp_frigor , tens_freezer, tens_frigor) VALUES ( NULL,?,?,?,?,?)",(time_now, temp_c_z, temp_c_g, sfreezer, sfrigor))
+                push_records_db
                 rid = c.lastrowid
                 if not (ctrl) :
                         for dest_addr in receivers:
@@ -156,7 +151,7 @@ while (step < 6):
                                         print "SMS NON Inviato a {}".format(dest_sms)
         elif not sfrigor:
                 print("---!!!Allarme Tensione Rilevato in Cella Frigor!!!---")
-                c.execute("INSERT INTO records(id, time , temp_freezer , temp_frigor , tens_freezer, tens_frigor) VALUES ( NULL,?,?,?,?,?)",(time_now, temp_c_z, temp_c_g, sfreezer, sfrigor))
+                push_records_db
                 rid = c.lastrowid
                 if not (ctrl) :
                         for dest_addr in receivers:
@@ -179,7 +174,7 @@ while (step < 6):
                                         print "SMS NON Inviato a {}".format(dest_sms)
         elif not (temp_c_z >= temp_inf_z):
                 print("---!!!Allarme Temperatura Troppo Bassa Rilevata in Cella Freezer!!!---")
-                c.execute("INSERT INTO records(id, time , temp_freezer , temp_frigor , tens_freezer, tens_frigor) VALUES ( NULL,?,?,?,?,?)",(time_now, temp_c_z, temp_c_g, sfreezer, sfrigor))
+                push_records_db
                 rid = c.lastrowid
                 if not (ctrl) :
                         for dest_addr in receivers:
@@ -202,7 +197,7 @@ while (step < 6):
                                         print "SMS NON Inviato a {}".format(dest_sms)
         elif not (temp_c_z <= temp_sup_z):
                 print("---!!!Allarme Temperatura Troppo Alta Rilevata in Cella Freezer!!!---")
-                c.execute("INSERT INTO records(id, time , temp_freezer , temp_frigor , tens_freezer, tens_frigor) VALUES ( NULL,?,?,?,?,?)",(time_now, temp_c_z, temp_c_g, sfreezer, sfrigor))
+                push_records_db
                 rid = c.lastrowid
                 if not (ctrl) :
                         for dest_addr in receivers:
@@ -225,7 +220,7 @@ while (step < 6):
                                         print "SMS NON Inviato a {}".format(dest_sms)
         elif not (temp_c_g >= temp_inf_g):
                 print("---!!!Allarme Temperatura Troppo Bassa Rilevata in Cella Frigor!!!---")
-                c.execute("INSERT INTO records(id, time , temp_freezer , temp_frigor , tens_freezer, tens_frigor) VALUES ( NULL,?,?,?,?,?)",(time_now, temp_c_z, temp_c_g, sfreezer, sfrigor))
+                push_records_db
                 rid = c.lastrowid
                 if not (ctrl) :
                         for dest_addr in receivers:
@@ -248,7 +243,7 @@ while (step < 6):
                                         print "SMS NON Inviato a {}".format(dest_sms)
         elif not (temp_c_g <= temp_sup_g):
                 print("---!!!Allarme Temperatura Troppo Alta Rilevata in Cella Frigor!!!---")
-                c.execute("INSERT INTO records(id, time , temp_freezer , temp_frigor , tens_freezer, tens_frigor) VALUES ( NULL,?,?,?,?,?)",(time_now, temp_c_z, temp_c_g, sfreezer, sfrigor))
+                push_records_db
                 rid = c.lastrowid
                 if not (ctrl) :
                         for dest_addr in receivers:
