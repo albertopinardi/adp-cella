@@ -1,0 +1,2 @@
+CREATE TABLE IF NOT EXISTS records (id INTEGER NOT NULL PRIMARY KEY, time TIMESTAMP, temp_freezer INTEGER, temp_frigor INTEGER, tens_freezer BOOLEAN, tens_frigor BOOLEAN );
+CREATE TABLE IF NOT EXISTS alerts (id INTEGER NOT NULL PRIMARY KEY, fid INTEGER, type varchar(20), dest varchar(50), err varchar(100));

@@ -5,7 +5,6 @@ import time
 import gammu
 import sys
 import sqlite3
-import time
 import datetime
 import smtplib
 #Definizione Testo Mail di invio
@@ -24,13 +23,13 @@ message_t = """From: Allarme Cella Amici del Peru' <allarme-adp@fastmail.it>
 MIME-Version: 1.0
 Content-type: text/html
 To: Volontari
-Subject: Allarme Temperatura Cella {cella}
+Subject: Allarme Temperatura Cella {}
 <HTML>
 Attenzione intervenire il prima possibile!!!
-Temperatura in Cella : {temp}
+Temperatura in Cella : {}
 </HTML>
 """
-
+#Indicazione percrso di lettura delle sonde
 base_dir = '/sys/bus/w1/devices/'
 device_freezer = base_dir + '28-041633ae3bff'
 device_frigor = base_dir + '28-800000040599'
@@ -45,8 +44,13 @@ GPIO.setwarnings(False)
 GPIO.setup(24, GPIO.IN)
 GPIO.setup(23, GPIO.IN)
 
+#Identifico Directory del DB
+wd = os.getcwd()
+db_name = 'datalogger.db'
+db_path = wd + db_name
+
 #connessione al DB
-conn = sqlite3.connect('/root/datalogger.db')
+conn = sqlite3.connect(db_path)
 c = conn.cursor()
 #abilito printout errori
 sqlite3.enable_callback_tracebacks(True)
@@ -99,14 +103,15 @@ def push_records_db():
 
 
 #Allarmi SMS per DB
-sms_tens = "Attenzione!!! Allarme Tensione Cella Freezer/Frigor"
-sms_temp = "Attenzione!!! Allarme Cella Freezer/Frigor {}"
+sms_tens = "Attenzione!!! Allarme Tensione Cella {}}"
+sms_temp = "Attenzione!!! Allarme Cella {} - {}"
 
 #Definizione Variabili
 temp_sup_z = -5         #Intervallo di Allarme superiore Cella Freezer
 temp_inf_z = -24        #Intervallo inferiore Freezer
 temp_sup_g = 100        #Intervallo di Allarme superiore Cella Frigor
 temp_inf_g = 0          #Intervallo inferiore Frigor
+#Lista numeri da contattare
 list_sms = ['+393406694374','+393394483981','+393342457975']
 sender = 'allarme-adp@fastmail.it'
 receivers = ['alberto@fastmail.it']
@@ -135,7 +140,7 @@ while (step < 6):
                                 try:
                                         smtpObj = smtplib.SMTP('localhost')
                                         smtpObj.sendmail(sender, dest_addr, (message_c.format("Freezer")))
-                                        c.execute("INSERT INTO alerts(id, fid, type, dest, err) VALUES ( NULL,?,?,?,?)",(rid,type_e, dest_addr,(message_c.format("Freezer"))) )
+                                        c.execute("INSERT INTO alerts(id, fid, type, dest, err) VALUES ( NULL,?,?,?,?)",(rid,type_e, dest_addr,(message_c.format("Freezer"))))
                                         print "e-mail Inviata a {}".format(dest_addr)
                                 except smtplib.SMTPException:
                                         print "e-mail NON Inviata a {}".format(dest_addr)
