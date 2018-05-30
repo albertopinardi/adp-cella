@@ -108,9 +108,9 @@ sms_temp = "Attenzione!!! Allarme Cella {} - {}"
 
 #Definizione Variabili
 temp_sup_z = -5         #Intervallo di Allarme superiore Cella Freezer
-temp_inf_z = -24        #Intervallo inferiore Freezer
+temp_inf_z = -30        #Intervallo inferiore Freezer
 temp_sup_g = 100        #Intervallo di Allarme superiore Cella Frigor
-temp_inf_g = 0          #Intervallo inferiore Frigor
+temp_inf_g = -100          #Intervallo inferiore Frigor
 #Lista numeri da contattare
 list_sms = ['+393406694374','+393394483981','+393342457975']
 sender = 'allarme-adp@fastmail.it'

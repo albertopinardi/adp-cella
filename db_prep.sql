@@ -1,2 +1,2 @@
-CREATE TABLE IF NOT EXISTS records (id INTEGER NOT NULL PRIMARY KEY, time TIMESTAMP, temp_freezer INTEGER, temp_frigor INTEGER, tens_freezer BOOLEAN, tens_frigor BOOLEAN );
-CREATE TABLE IF NOT EXISTS alerts (id INTEGER NOT NULL PRIMARY KEY, fid INTEGER, type varchar(20), dest varchar(50), err varchar(100));
+CREATE TABLE records(id INTEGER PRIMARY KEY AUTOINCREMENT, time, temp_freezer , temp_frigor , tens_freezer, tens_frigor );
+CREATE TABLE alerts (id INTEGER PRIMARY KEY AUTOINCREMENT, fid , type, dest, err, FOREIGN KEY(fid) REFERENCES records(id));
