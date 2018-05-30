@@ -95,7 +95,7 @@ def sms_alarm_tens( num, cella ):
         sm.SendSMS(message)
 
 def stampa_stdout():
-        print("T° Freezer: ", temp_c_z,"T° Frigor: ", temp_c_g , "Ore: ", time.ctime(int(time_now)), "Corrente Freezer: ",sfreezer, "Corrente Frigor: ",sfrigor)
+        print("Temp Freezer: ", temp_c_z,"Temp Frigor: ", temp_c_g , "Ore: ", time.ctime(int(time_now)), "Corrente Freezer: ",sfreezer, "Corrente Frigor: ",sfrigor)
 
 
 def push_records_db():
