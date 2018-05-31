@@ -1,11 +1,12 @@
 #!/usr/bin/env python
-
-#Stato dei GPIO
-#Attenzione PIN OUT BCM !!!
 import time
 import sqlite3
 import datetime
 import RPi.GPIO as GPIO
+import os
+
+#Stato dei GPIO
+#Attenzione PIN OUT BCM !!!
 GPIO.setmode(GPIO.BCM)
 GPIO.setwarnings(False)
 GPIO.setup(24, GPIO.IN)
@@ -17,8 +18,13 @@ device_frigor = base_dir + '28-800000040599'
 path_freezer = device_freezer + '/w1_slave'
 path_frigor = device_frigor + '/w1_slave'
 
+#Identifico Directory del DB
+wd = os.getcwd()
+db_name = 'datalogger.db'
+db_path = wd + db_name
+
 #connessione al DB
-conn = sqlite3.connect('/root/datalogger.db')
+conn = sqlite3.connect(db_path)
 c = conn.cursor()
 #abilito printout errori
 sqlite3.enable_callback_tracebacks(True)
