@@ -72,12 +72,14 @@ def read_temp(pth):
         temp_c = float(temp_string) / 1000.0
         return temp_c
 
-def sms_alarm_temp( num, cella, temp):
+def sms_alarm_temp( num, temp ):
         sm = gammu.StateMachine()
         sm.ReadConfig()
         sm.Init()
+        txt = 'Attenzione!!! Allarme Temperatura Cella Freezer - Temperatura rilevata {}'
+        tot = txt.format(temp)
         message = {
-                'Text': 'Attenzione!!! Allarme Cella {cella}. Temperatura attuale : {temp}',
+                'Text': tot,
                 'SMSC': {'Location': 1},
                 'Number': num,
         }
