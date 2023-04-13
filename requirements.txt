@@ -1,0 +1,3 @@
+prometheus_client
+RPi.GPIO
+w1thermsensor
