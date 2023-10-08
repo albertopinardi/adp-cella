@@ -6,13 +6,13 @@ import signal
 import time
 import sys
 import RPi.GPIO as GPIO
-from prometheus_client import Gauge, start_http_server, Counter
+from prometheus_client import Gauge, start_http_server, Summary
 from w1thermsensor import W1ThermSensor, Sensor
 
 
 # Set up Prometheus metrics
-FREEZER_TIMER = Counter('freezer_current', 'Freezer powerloss monitor metrics')
-FRIDGE_TIMER = Counter('fridge_current', 'Fridge powerloss monitor metrics')
+FREEZER_TIMER = Summary('freezer_current', 'Freezer powerloss monitor metrics')
+FRIDGE_TIMER = Summary('fridge_current', 'Fridge powerloss monitor metrics')
 FREEZER_TEMP = Gauge('freezer_temperature', 'Freezer temperature monitor metrics')
 AMBIENT_TEMP = Gauge('ambient_temperature', 'Ambient temperature monitor metrics')
 
