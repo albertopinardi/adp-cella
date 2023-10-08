@@ -70,13 +70,16 @@ def freezer_off(*args):
     logger.debug(f"freezer off for {duration / 1e9 } seconds")
 
 
-
 def gather_temperature(sensor_id, *args):
     """Read temperature from Sensors"""
     logger.debug(f"gather_temperature called: {args}")
     # Issue the conv_temp command
     sensor = W1ThermSensor(sensor_type=Sensor.DS18B20, sensor_id=sensor_id)
-    temperature_in_celsius = sensor.get_temperature()
+    try:
+        temperature_in_celsius = sensor.get_temperature()
+    except Exception as e:
+        logger.error(f"Exception: {e}")
+        temperature_in_celsius = 999
     # return all values from the bus
     return temperature_in_celsius
 
@@ -90,8 +93,8 @@ if __name__ == '__main__':
     GPIO.setup(FRIDGE_PIN, GPIO.IN, pull_up_down=GPIO.PUD_UP)
     logger.debug("Add event detector")
     signal.signal(signal.SIGINT, signal_handler)
-    GPIO.add_event_detect(FREEZER_PIN, GPIO.FALLING , callback=freezer_off, bouncetime=1000)
-    GPIO.add_event_detect(FRIDGE_PIN, GPIO.FALLING , callback=fridge_off, bouncetime=1000)
+    GPIO.add_event_detect(FREEZER_PIN, GPIO.FALLING, callback=freezer_off, bouncetime=1000)
+    GPIO.add_event_detect(FRIDGE_PIN, GPIO.FALLING, callback=fridge_off, bouncetime=1000)
     while True:
         FREEZER_TEMP.set(gather_temperature(FREEZER_HWID))
         AMBIENT_TEMP.set(gather_temperature(AMBIENT_HWID))
